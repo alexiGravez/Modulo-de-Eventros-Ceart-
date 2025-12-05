@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin · Centro de Artes</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">Centro de Artes</div>
+        <nav>
+            <button type="button" class="nav-item active" data-view="view-events">📅 Eventos</button>
+            <button type="button" class="nav-item" data-view="view-venues">🏛️ Sedes</button>
+            <button type="button" class="nav-item" data-view="view-categories">🏷️ Categorías</button>
+            <button type="button" class="nav-item" data-view="view-bookings">🧾 Reservas</button>
+        </nav>
+        <div class="sidebar-foot">
+            <span class="tag">Admin</span>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+        <header class="topbar">
+            <div class="left">
+                <h1 id="page-title">Eventos</h1>
+            </div>
+            <div class="right">
+                <input id="search-input" class="input" placeholder="Buscar eventos…" />
+                <button id="btn-search" class="btn">Buscar</button>
+                <button id="btn-new-event" class="btn btn-primary">Nuevo evento</button>
+            </div>
+        </header>
+
+        <!-- ===== Eventos ===== -->
+        <section id="view-events" class="view active">
+            <div class="card">
+                <div class="toolbar">
+                    <div class="filters">
+                        <select id="f-status" class="input">
+                            <option value="">Estado (todos)</option>
+                            <option value="scheduled">Programado</option>
+                            <option value="soldout">Cupo lleno</option>
+                            <option value="cancelled">Cancelado</option>
+                            <option value="postponed">Pospuesto</option>
+                        </select>
+                        <select id="f-category" class="input">
+                            <option value="">Categoría (todas)</option>
+                        </select>
+                        <select id="f-venue" class="input">
+                            <option value="">Sede (todas)</option>
+                        </select>
+                    </div>
+                    <div class="filters">
+                        <input id="f-from" type="date" class="input" />
+                        <input id="f-to" type="date" class="input" />
+                        <button id="btn-apply-filters" class="btn">Aplicar</button>
+                        <button id="btn-clear-filters" class="btn btn-ghost">Limpiar</button>
+                    </div>
+                </div>
+                <div id="events-table" class="table"></div>
+            </div>
+
+            <!-- Drawer de Nuevo/Editar -->
+            <div id="drawer" class="drawer">
+                <div class="drawer-head">
+                    <h3 id="form-title">Nuevo evento</h3>
+                    <button id="drawer-close" class="btn btn-ghost">✕</button>
+                </div>
+
+                <div class="drawer-body">
+                    <form id="form-event" class="form">
+                        <input type="hidden" id="ev-id" />
+
+                        <!-- Básicos -->
+                        <div class="section">
+                            <div class="section-title">Básicos</div>
+                            <div class="grid-2">
+                                <label class="field">
+                                    <span class="label">Título</span>
+                                    <input id="ev-title" class="input" required />
+                                </label>
+                                <label class="field">
+                                    <span class="label">Categoría</span>
+                                    <select id="ev-category" class="input" required></select>
+                                </label>
+                            </div>
+                            <label class="field">
+                                <span class="label">Resumen (opcional)</span>
+                                <input id="ev-summary" class="input" placeholder="Breve descripción" />
+                            </label>
+                            <label class="field">
+                                <span class="label">Descripción</span>
+                                <textarea id="ev-description" class="input" rows="4" required></textarea>
+                            </label>
+                        </div>
+
+                        <!-- Lugar -->
+                        <div class="section">
+                            <div class="section-title">Lugar</div>
+                            <div class="grid-2">
+                                <label class="field">
+                                    <span class="label">Sede existente</span>
+                                    <select id="ev-venue" class="input"></select>
+                                </label>
+                                <label class="field">
+                                    <span class="label">…o crear nueva sede (sala)</span>
+                                    <input id="ev-venue-new" class="input" placeholder="Nombre de nueva sede" />
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Horario -->
+                        <div class="section">
+                            <div class="section-title">Horario</div>
+                            <div class="grid-2">
+                                <div class="subcard">
+                                    <div class="subcard-head">
+                                        <span class="strong">Inicio</span>
+                                        <small class="hint">Acepta "2 pm", "14:30", "2:30 p. m."</small>
+                                    </div>
+                                    <div class="grid-2">
+                                        <input id="ev-date" type="date" class="input" required />
+                                        <input id="ev-start" class="input" placeholder="hh:mm ó 2 pm" required />
+                                    </div>
+                                </div>
+                                <div class="subcard">
+                                    <div class="subcard-head">
+                                        <span class="strong">Fin</span>
+                                        <small class="hint">Si lo dejas vacío, se calcula +2 h</small>
+                                    </div>
+                                    <div class="grid-2">
+                                        <input id="ev-date-end" type="date" class="input" />
+                                        <input id="ev-end" class="input" placeholder="hh:mm ó 8 pm" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="duration-hint" class="muted mt">—</div>
+                        </div>
+
+                        <!-- Cupo y estado -->
+                        <div class="section">
+                            <div class="section-title">Cupo y estado</div>
+                            <div class="grid-3">
+                                <label class="field">
+                                    <span class="label">Cupo total</span>
+                                    <input id="ev-capacity" type="number" min="0" value="0" class="input" />
+                                </label>
+                                <label class="field">
+                                    <span class="label">Estatus</span>
+                                    <select id="ev-status" class="input">
+                                        <option value="scheduled">Programado</option>
+                                        <option value="soldout">Cupo lleno</option>
+                                        <option value="cancelled">Cancelado</option>
+                                        <option value="postponed">Pospuesto</option>
+                                    </select>
+                                </label>
+                                <label class="field">
+                                    <span class="label">Etiquetas (coma)</span>
+                                    <input id="ev-tags" class="input" placeholder="flamenco, danza" />
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-primary" type="submit">Guardar</button>
+                            <button class="btn btn-ghost" type="button" id="ev-cancel">Cancelar</button>
+                        </div>
+                    </form>
+
+                    <div class="divider"></div>
+
+                    <!-- Imágenes del evento -->
+                    <div class="section">
+                        <div class="section-title">Imágenes del evento</div>
+
+                        <!-- Subir desde el dispositivo -->
+                        <div class="upload-controls">
+                            <div class="grid-3">
+                                <input id="img-file" class="input" type="file" accept="image/*" multiple />
+                                <input id="img-alt" class="input" placeholder="Texto alternativo (opcional)" />
+                                <button id="img-upload" class="btn">Subir imágenes</button>
+                            </div>
+                            <div class="mt">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="img-make-cover" />
+                                    <span class="checkmark"></span>
+                                    Hacer que la primera imagen sea la portada
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Barra de progreso -->
+                        <div id="upload-progress" class="progress mt" style="display:none">
+                            <div class="bar" style="width:0%"></div>
+                        </div>
+
+                        <!-- Agregar por URL -->
+                        <details class="mt">
+                            <summary class="muted">Agregar por URL (opcional)</summary>
+                            <div class="grid-3 mt">
+                                <input id="img-url" class="input" placeholder="https://…" />
+                                <input id="img-pos" type="number" min="1" value="1" class="input" placeholder="Orden" />
+                                <button id="img-add-url" class="btn" type="button">Agregar URL</button>
+                            </div>
+                        </details>
+
+                        <!-- Contenedor de vista previa -->
+                        <div id="ev-images" class="images-grid mt"></div>
+
+                        <p class="muted mt">
+                            💡 Haz clic en cualquier imagen para verla en grande. Solo una imagen puede ser portada.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Sedes ===== -->
+        <section id="view-venues" class="view">
+            <div class="card">
+                <h3>Sedes (salas)</h3>
+                <div class="grid-2">
+                    <input id="venue-name" class="input" placeholder="Nombre de sede (sala)" />
+                    <button id="venue-add" class="btn btn-primary">Agregar sede</button>
+                </div>
+                <div id="venues-list" class="table mt"></div>
+            </div>
+        </section>
+
+        <!-- ===== Categorías ===== -->
+        <section id="view-categories" class="view">
+            <div class="card">
+                <h3>Categorías (lista sugerida)</h3>
+                <p class="muted">
+                    Se usan para el select del evento. El evento guarda texto.
+                </p>
+                <div class="grid-2">
+                    <input id="category-name" class="input" placeholder="Nueva categoría" />
+                    <button id="category-add" class="btn btn-primary">Agregar categoría</button>
+                </div>
+                <div id="categories-list" class="table mt"></div>
+            </div>
+        </section>
+
+        <!-- ===== Reservas ===== -->
+        <section id="view-bookings" class="view">
+            <div class="card">
+                <div class="toolbar">
+                    <h3>Gestión de Reservas</h3>
+                    <button id="booking-add" class="btn btn-primary">➕ Nueva Reserva</button>
+                </div>
+                <div id="bookings-table" class="table"></div>
+            </div>
+        </section>
+
+        <!-- Modal para nueva reserva -->
+        <div id="booking-modal" class="modal" style="display:none">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Nueva Reserva</h3>
+                    <button id="booking-modal-close" class="btn btn-ghost">✕</button>
+                </div>
+                <div class="modal-body">
+                    <form id="booking-form" class="form">
+                        <div class="grid-2">
+                            <label class="field">
+                                <span class="label">Evento *</span>
+                                <select id="booking-event-select" class="input" required>
+                                    <option value="">Cargando eventos...</option>
+                                </select>
+                            </label>
+                            <label class="field">
+                                <span class="label">Cantidad de lugares *</span>
+                                <input id="booking-qty" type="number" min="1" value="1" class="input" required />
+                            </label>
+                        </div>
+
+                        <div id="capacity-info" class="mb"></div>
+
+                        <div class="grid-2">
+                            <label class="field">
+                                <span class="label">Nombre completo *</span>
+                                <input id="booking-name" class="input" required />
+                            </label>
+                            <label class="field">
+                                <span class="label">Email *</span>
+                                <input id="booking-email" type="email" class="input" required />
+                            </label>
+                        </div>
+
+                        <div class="grid-2">
+                            <label class="field">
+                                <span class="label">Teléfono</span>
+                                <input id="booking-phone" class="input" placeholder="Opcional" />
+                            </label>
+                            <label class="field">
+                                <span class="label">Notas</span>
+                                <input id="booking-notes" class="input" placeholder="Información adicional" />
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button id="booking-add-btn" type="submit" class="btn btn-primary">Confirmar Reserva</button>
+                            <button type="button" class="btn btn-ghost" onclick="closeBookingModal()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast" style="display:none"></div>
+    <script src="script.js"></script>
+</body>
+</html>
