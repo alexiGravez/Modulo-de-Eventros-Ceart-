@@ -41,6 +41,10 @@ services:
       DATABASE_URL: postgres://postgres:postgres@db:5432/cenart
       CORS_ORIGIN: "http://127.0.0.1:5500"
       NODE_ENV: development
+
+      # ⬇️⬇️ NUEVO: configuración para MongoDB Atlas
+      MONGO_URI: "mongodb+srv://davidUser:david123@daviixc1.zurhsrw.mongodb.net/?appName=Daviixc1"
+      MONGO_DB_NAME: "ceart_metrics"
     ports:
       - "3333:3000"
     volumes:
@@ -53,4 +57,5 @@ services:
 volumes:
   dbdata:
   pgadmindata:
+
 
