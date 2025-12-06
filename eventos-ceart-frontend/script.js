@@ -1,5 +1,5 @@
 // ====== CONFIG ======
-const API_BASE   = 'http://localhost:3333/api';
+const API_BASE   = 'http://192.168.176.114:3333/api';
 const API_ORIGIN = API_BASE.replace(/\/api$/, ''); // http://192.168.176.112:3333
 
 // ====== STATE ======
